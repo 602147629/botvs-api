@@ -1,0 +1,2639 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotVS-API</title>
+<link rel="stylesheet" href="https://stackedit.io/res-min/themes/base.css" />
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+ //是否显示导航栏
+ var showNavBar = true;
+ //是否展开导航栏
+ var expandNavBar = true;
+
+ $(document).ready(function(){
+    var h1s = $("body").find("h1");
+    var h2s = $("body").find("h2");
+    var h3s = $("body").find("h3");
+    var h4s = $("body").find("h4");
+    var h5s = $("body").find("h5");
+    var h6s = $("body").find("h6");
+
+    var headCounts = [h1s.length, h2s.length, h3s.length, h4s.length, h5s.length, h6s.length];
+    var vH1Tag = null;
+    var vH2Tag = null;
+    for(var i = 0; i < headCounts.length; i++){
+        if(headCounts[i] > 0){
+            if(vH1Tag == null){
+                vH1Tag = 'h' + (i + 1);
+            }else{
+                vH2Tag = 'h' + (i + 1);
+            }
+        }
+    }
+    if(vH1Tag == null){
+        return;
+    }
+
+    $("body").prepend('<div class="BlogAnchor">' + 
+        '<span style="color:red;position:absolute;top:-6px;left:0px;cursor:pointer;" onclick="$(\'.BlogAnchor\').hide();">×</span>' +
+        '<p>' + 
+            '<b id="AnchorContentToggle" title="收起" style="cursor:pointer;">目录▲</b>' + 
+        '</p>' + 
+        '<div class="AnchorContent" id="AnchorContent"> </div>' + 
+    '</div>' );
+
+    var vH1Index = 0;
+    var vH2Index = 0;
+    $("body").find("h1,h2,h3,h4,h5,h6").each(function(i,item){
+        var id = '';
+        var name = '';
+        var tag = $(item).get(0).tagName.toLowerCase();
+        var className = '';
+        if(tag == vH1Tag){
+            id = name = ++vH1Index;
+            name = id;
+            vH2Index = 0;
+            className = 'item_h1';
+        }else if(tag == vH2Tag){
+            id = vH1Index + '_' + ++vH2Index;
+            name = '';
+            className = 'item_h2';
+        }
+        $(item).attr("id","wow"+id);
+        $(item).addClass("wow_head");
+        $("#AnchorContent").css('max-height', ($(window).height() - 180) + 'px');
+        $("#AnchorContent").append('<li><a class="nav_item '+className+' anchor-link" onclick="return false;" href="#" link="#wow'+id+'">'+name+" · "+$(this).text()+'</a></li>');
+    });
+
+    $("#AnchorContentToggle").click(function(){
+        var text = $(this).html();
+        if(text=="目录▲"){
+            $(this).html("目录▼");
+            $(this).attr({"title":"展开"});
+        }else{
+            $(this).html("目录▲");
+            $(this).attr({"title":"收起"});
+        }
+        $("#AnchorContent").toggle();
+    });
+    $(".anchor-link").click(function(){
+        $("html,body").animate({scrollTop: $($(this).attr("link")).offset().top}, 500);
+    });
+
+    var headerNavs = $(".BlogAnchor li .nav_item");
+    var headerTops = [];
+    $(".wow_head").each(function(i, n){
+        headerTops.push($(n).offset().top);
+    });
+    $(window).scroll(function(){
+        var scrollTop = $(window).scrollTop();
+        $.each(headerTops, function(i, n){
+            var distance = n - scrollTop;
+            if(distance >= 0){
+                $(".BlogAnchor li .nav_item.current").removeClass('current');
+                $(headerNavs[i]).addClass('current');
+                return false;
+            }
+        });
+    });
+
+    if(!showNavBar){
+        $('.BlogAnchor').hide();
+    }
+    if(!expandNavBar){
+        $(this).html("目录▼");
+        $(this).attr({"title":"展开"});
+        $("#AnchorContent").hide();
+    }
+ });
+</script>
+<style>
+    /*导航*/
+    .BlogAnchor {
+        background: #f1f1f1;
+        padding: 10px;
+        line-height: 180%;
+        position: fixed;
+        right: 48px;
+        top: 48px;
+        border: 1px solid #aaaaaa;
+    }
+    .BlogAnchor p {
+        font-size: 18px;
+        color: #15a230;
+        margin: 0 0 0.3rem 0;
+        text-align: right;
+    }
+    .BlogAnchor .AnchorContent {
+        padding: 5px 0px;
+        overflow: auto;
+    }
+    .BlogAnchor li{
+        text-indent: 0.5rem;
+        font-size: 14px;
+        list-style: none;
+    }
+    .BlogAnchor li .nav_item{
+        padding: 3px;
+    }
+    .BlogAnchor li .item_h1{
+        margin-left: 0rem;
+    }
+    .BlogAnchor li .item_h2{
+        margin-left: 2rem;
+        font-size: 0.8rem;
+    }
+    .BlogAnchor li .nav_item.current{
+        color: white;
+        background-color: #5cc26f;
+    }
+    #AnchorContentToggle {
+        font-size: 13px;
+        font-weight: normal;
+        color: #FFF;
+        display: inline-block;
+        line-height: 20px;
+        background: #5cc26f;
+        font-style: normal;
+        padding: 1px 8px;
+    }
+    .BlogAnchor a:hover {
+        color: #5cc26f;
+    }
+    .BlogAnchor a {
+        text-decoration: none;
+    }
+</style>
+</head>
+<body><div class="container"><h1 id="1基础说明"><strong>1.基础说明</strong></h1>
+
+<hr>
+
+
+
+<h2 id="11-入门">1.1 入门</h2>
+
+<blockquote>
+  <p>如果我即没有编程知识，也不懂金融，可以在平台实现量化交易么？</p>
+</blockquote>
+
+<p>当然可以，我们平台针对还没入门的新手有一套完整的教程，只需要学习一两天就可以在平台上愉快的玩耍了：<a href="https://www.botvs.com/bbs-topic/458">零基础入门教程</a></p>
+
+<blockquote>
+  <p>可用哪些编程语言实现我的策略？</p>
+</blockquote>
+
+<p>BotVS支持使用java scripts和pyhton编写策略。<a href="https://www.botvs.com/bbs-topic/382">java scripts快速入门</a>，<a href="https://www.botvs.com/bbs-topic/417">python快速入门</a>，两种语言掌握其中一种就足够了。</p>
+
+<blockquote>
+  <p>什么是托管者？</p>
+</blockquote>
+
+<p>托管者可以理解为您的交易策略的执行者，负责复杂的数据请求，数据接收，网络链接，日志回传等等工作。托管者运行在您的服务器上，即使BotVS网站出现网络故障，也不影响您的托管者运行。托管者可运行在Linux, Windows, mac os, android等系统上。 <a href="https://www.botvs.com/m/add-node">托管者安装</a></p>
+
+
+
+<h2 id="12-回测系统">1.2 回测系统</h2>
+
+<blockquote>
+  <p>什么是回测系统，有什么用？</p>
+</blockquote>
+
+<p>当您完成一个策略的量化工作后，怎么才能知道你这个策略盈利不盈利，赚钱不赚钱？当然我们不能直接拿真金白银人民币去交易市场上跑策略，我们可以用历史数据来测试您的策略，看看您的策略在历史数据中盈利如何，是亏钱还是赚钱。<a href="http://files.botvs.com/JC/1-3-1.mov.mp4?botvs">如何使用回测系统</a></p>
+
+<blockquote>
+  <p>回测系统的数据准确么，结果可信么?</p>
+</blockquote>
+
+<p>BotVS将回测分为实盘级和模拟级，实盘级完全按照完整的历史数据回测，模拟级生成每隔一段时间的k线来进行回测，两者都是根据真实历史数据回测的，但实盘级数据更精准，结果更加可信。</p>
+
+
+
+<h1 id="2代码说明"><strong>2.代码说明</strong></h1>
+
+<hr>
+
+
+
+<h2 id="21经典策略框架">2.1经典策略框架</h2>
+
+<p>策略编写可以使用Javascript或者Python语言 </p>
+
+<p>main() 为入口函数 </p>
+
+<p>onexit() 为正常退出扫尾函数，可以不声明 </p>
+
+<p>onerror() 为异常退出函数，最长执行时间为5分钟，可以不声明 </p>
+
+<p>init()   为初始化函数，可不声名</p>
+
+
+
+<pre class="prettyprint"><code class="language-java scripts hljs ">onTick(){
+    <span class="hljs-comment">//在这里写策略逻辑，将会不断调用</span>
+    }
+main() {
+    init();<span class="hljs-comment">//可以没有</span>
+    <span class="hljs-keyword">while</span>(<span class="hljs-keyword">true</span>) {
+        onTick();
+        Sleep(<span class="hljs-number">60000</span>);
+    }
+}</code></pre>
+
+<p>举个最简单的例子，如果我想每隔1秒种就在交易所挂个价格为100，数量为1的买单，可以这么写:</p>
+
+
+
+<pre class="prettyprint"><code class="language-java scripts hljs ">functiononTick() { 
+    exchange.buy(<span class="hljs-number">100</span>,<span class="hljs-number">1</span>); 
+} 
+main(){ 
+<span class="hljs-keyword">while</span>(<span class="hljs-keyword">true</span>) { 
+    onTick(); 
+    Sleep(<span class="hljs-number">1000</span>); 
+    } 
+}</code></pre>
+
+
+
+<h2 id="22-全局常量">2.2 全局常量</h2>
+
+<blockquote>
+  <p>exchange</p>
+</blockquote>
+
+<p>可视为一个交易所对象，默认为策略参数中添加的第一个交易所，所有与交易所的数据交互，都通过这个对象里面的函数实现。</p>
+
+<blockquote>
+  <p>exchanges</p>
+</blockquote>
+
+<p>exchange的数组，包含多个交易所对象</p>
+
+
+
+<h2 id="23-市场信息">2.3 市场信息</h2>
+
+<p>以下函数均可通过exchange或exchange[x]对象调用，例如：exchange.GetTicker(); 返回市场行情</p>
+
+
+
+<h3 id="231-getticker">2.3.1 GetTicker()</h3>
+
+<blockquote>
+  <p>exchange.GetTicker();  </p>
+  
+  <p>获取市场当前行情 </p>
+  
+  <p>返回值: Ticker结构体</p>
+</blockquote>
+
+<p>Ticker结构体包含以下变量: </p>
+
+<p>(object) Info: 交易所返回的原始结构 </p>
+
+<p>(number) High: 最高价 </p>
+
+<p>(number) Low    : 最低价 </p>
+
+<p>(number) Sell   : 卖一价 </p>
+
+<p>(number) Buy    : 买一价 </p>
+
+<p>(number) Last   : 最后成交价 </p>
+
+<p>(number) Volume : 最近成交量</p>
+
+
+
+<h3 id="232-getdepth">2.3.2 GetDepth()</h3>
+
+<blockquote>
+  <p>exchange.GetDepth() </p>
+  
+  <p>获取交易所订单薄 </p>
+  
+  <p>返回值:Depth结构体</p>
+</blockquote>
+
+<p>Depth结构体包含两个结构体数组，分别是Asks[]和Bids[]，Asks和Bids包含以下变量: </p>
+
+<p>(number) Price:价格 </p>
+
+<p>(number) Amount:数量 </p>
+
+<p>例如我想获取当前卖二价，可以这么写代码: exchange.GetDepth().Asks[1].Price</p>
+
+
+
+<h3 id="233-gettrades">2.3.3 GetTrades()</h3>
+
+<blockquote>
+  <p>exchange.GetTrades() </p>
+  
+  <p>获取交易所交易历史（非自己） </p>
+  
+  <p>返回值: Trade结构体</p>
+</blockquote>
+
+<p>(string) Id :Id(交易所返回的此Trade的唯一Id) </p>
+
+<p>(number) Time   :时间(Unix timestamp 毫秒) </p>
+
+<p>(number) Price  :价格 </p>
+
+<p>(number) Amount :数量 </p>
+
+<p>(const)Type :订单类型:ORDER_STATE_PENDING, ORDER_STATE_CLOSED,ORDER_STATE_CANCELED。分别为未成交，已关闭，已取消</p>
+
+
+
+<h3 id="234-getrecords">2.3.4 GetRecords()</h3>
+
+<blockquote>
+  <p>exchange.GetRecords(Period) </p>
+  
+  <p>返回一个K线历史, K线周期在创建机器人时指定 </p>
+  
+  <p>参数值:PERIOD_M1 指1分钟, PERIOD_M5 指5分钟, PERIOD_M15 指15分钟, PERIOD_M30 指30分钟, PERIOD_H1 指1小时, PERIOD_D1 指一天。 </p>
+  
+  <p>返回值: Record结构体</p>
+</blockquote>
+
+<p>Record结构体包含以下变量: </p>
+
+<p>(number) Time   :一个时间戳, 精确到毫秒，与Javascript的 new Date().getTime() 得到的结果格式一样 </p>
+
+<p>(number) Open   :开盘价 </p>
+
+<p>(number) High   :最高价 </p>
+
+<p>(number) Low    :最低价 </p>
+
+<p>(number) Close  :收盘价 </p>
+
+<p>(number) Volume :交易量</p>
+
+
+
+<h3 id="235-getaccount">2.3.5 GetAccount()</h3>
+
+<blockquote>
+  <p>exchange.GetAccount() </p>
+  
+  <p>将返回交易所账户信息 </p>
+  
+  <p>返回值: Account结构结构体</p>
+</blockquote>
+
+<p>Account结构体包含以下变量: </p>
+
+<p>(object) Info   :交易所返回的原始结构 </p>
+
+<p>(number) Balance : 余额(订价货币余额, ETH_BTC的话BTC为订价货币) </p>
+
+<p>(number) FrozenBalance  : 冻结的余额 </p>
+
+<p>(number) Stocks : 交易货币的可用数量, 现货为当前可操作币的余额(去掉冻结的币), 期货的话为合约当前可用保证金(传统期货为此属性) </p>
+
+<p>(number) FrozenStocks : 冻结的交易货币的可用数量(传统期货无此属性)</p>
+
+
+
+<h3 id="236-getorder">2.3.6 GetOrder()</h3>
+
+<blockquote>
+  <p>exchange.GetOrder(orderId) </p>
+  
+  <p>根据订单号获取订单详情 </p>
+  
+  <p>参数值: orderid为要取消的订单号，为string类型 </p>
+  
+  <p>返回值: Order结构体</p>
+</blockquote>
+
+<p>(object) Info   :交易所返回的原始结构 </p>
+
+<p>(string) Id :交易单唯一标识 </p>
+
+<p>(number) Price  :下单价格 </p>
+
+<p>(number) Amount :下单数量 </p>
+
+<p>(number) DealAmount :成交数量 </p>
+
+<p>(const) Status : 订单状态, ORDER_STATE_PENDING : 未完成ORDER_STATE_CLOSED  :已关ORDER_STATE_CANCELED : 已取消 </p>
+
+<p>(const)Type :订单类型, ORDER_TYPE_BUY   :买单，ORDER_TYPE_SELL : 卖单</p>
+
+
+
+<h3 id="237-getorders">2.3.7 GetOrders()</h3>
+
+<blockquote>
+  <p>exchange.GetOrders() </p>
+  
+  <p>获取所有未完成的订单 </p>
+  
+  <p>返回值: Order结构体数组</p>
+</blockquote>
+
+<p>order结构体可参考GetOrder()函数说明</p>
+
+
+
+<h3 id="238-getrawjson">2.3.8 GetRawJSON()</h3>
+
+<blockquote>
+  <p>exchange.GetRawJSON() </p>
+  
+  <p>返回最后一次REST API请求返回的原始内容(字符串), 可以用来自己解析扩展信息 </p>
+  
+  <p>返回值 : string类型</p>
+</blockquote>
+
+<p>模拟测试的话，会一直返回一个空字符串, 只在真实环境下有效 </p>
+
+<p>exchange.GetAccount(); </p>
+
+<p>var obj = JSON.parse(exchange.GetRawJSON());</p>
+
+
+
+<h3 id="239-getname">2.3.9 GetName()</h3>
+
+<blockquote>
+  <p>exchange.GetName() </p>
+  
+  <p>返回交易所名称 </p>
+  
+  <p>返回值: string类型</p>
+</blockquote>
+
+
+
+<h3 id="2310-getlabel">2.3.10 GetLabel()</h3>
+
+<blockquote>
+  <p>exchange.GetLabel() </p>
+  
+  <p>返回交易所自定义的标签 </p>
+  
+  <p>返回值:string类型</p>
+</blockquote>
+
+
+
+<h3 id="2311-getcurrency">2.3.11 GetCurrency()</h3>
+
+<blockquote>
+  <p>exchange.GetCurrency() </p>
+  
+  <p>返回交易所操作的货币对名称如LTC_BTC, 传统期货CTP返回的固定为STOCK. </p>
+  
+  <p>返回值:string类型</p>
+</blockquote>
+
+
+
+<h3 id="2312-getquotecurrency">2.3.12 GetQuoteCurrency()</h3>
+
+<blockquote>
+  <p>exchange.GetQuoteCurrency() </p>
+  
+  <p>返回交易所操作的基础货币名称, 例如BTC_CNY就返回CNY, ETH_BTC就返回BTC </p>
+  
+  <p>返回值:string类型</p>
+</blockquote>
+
+
+
+<h3 id="2313-getrate">2.3.13 GetRate()</h3>
+
+<blockquote>
+  <p>exchange.GetRate() </p>
+  
+  <p>返回交易所使用的流通货币与人民币的汇率, 返回1表示禁用汇率转换 </p>
+  
+  <p>返回值:number类型</p>
+</blockquote>
+
+
+
+<h3 id="2314-getusdcny">2.3.14 GetUSDCNY()</h3>
+
+<blockquote>
+  <p>exchange.GetUSDCNY() </p>
+  
+  <p>返回美元最新汇率(yahoo提供的数据源) </p>
+  
+  <p>返回值:number类型</p>
+</blockquote>
+
+
+
+<h2 id="24-交易操作">2.4 交易操作</h2>
+
+<p>以下函数均可通过exchange或exchange[x]对象调用，例如：exchange.sell(100, 1); 在交易所下一个价格为100，数量为1的买单</p>
+
+
+
+<h3 id="241-buy">2.4.1 Buy()</h3>
+
+<blockquote>
+  <p>exchange.Buy(Price, Amount) </p>
+  
+  <p>下买单,  返回一个订单ID </p>
+  
+  <p>参数值： price为订单价格，number类型，Amount为订单数量，number类型 </p>
+  
+  <p>返回值：string类型</p>
+</blockquote>
+
+<p>返回订单编号，可用于查询订单信息和取消订单</p>
+
+
+
+<h3 id="242-sell">2.4.2 Sell()</h3>
+
+<blockquote>
+  <p>exchange.Sell(Price, Amount) </p>
+  
+  <p>下卖单，返回一个订单ID </p>
+  
+  <p>参数值：price为订单价格，number类型，Amount为订单数量，number类型 </p>
+  
+  <p>返回值：string类型</p>
+</blockquote>
+
+<p>返回订单编号，可用于查询订单信息和取消订单</p>
+
+
+
+<h3 id="243-cancelorder">2.4.3 CancelOrder()</h3>
+
+<blockquote>
+  <p>exchange.CancelOrder(orderId) </p>
+  
+  <p>取消某个订单 </p>
+  
+  <p>参数值：orderid为订单编号，string类型 </p>
+  
+  <p>返回值：bool类型</p>
+</blockquote>
+
+<p>返回操作结果，true表示订单取消成功，false表示订单取消失败</p>
+
+
+
+<h3 id="244-setprecision">2.4.4 SetPrecision()</h3>
+
+<blockquote>
+  <p>exchange.SetPrecision(PricePrecision, AmountPrecision) </p>
+  
+  <p>设置价格与品种下单量的小数位精度, 设置后会自动截断 </p>
+  
+  <p>参数值：PricePrecision为number类型，用来控制价格后面的小数点位，AmountPrecision为number类型，用来控制数量后面的小数点位</p>
+</blockquote>
+
+<p>PricePrecision和AmountPrecision都必须是整型number </p>
+
+<p>使用案例： </p>
+
+<p>exchange.SetPrecision(2, 3); // 设置价格小数位精度为2位, 品种下单量小数位精度为3位</p>
+
+
+
+<h3 id="245-setrate">2.4.5 SetRate()</h3>
+
+<blockquote>
+  <p>exchange.SetRate(scale) </p>
+  
+  <p>设置交易所的流通货币的汇率 </p>
+  
+  <p>参数值：scale为number类型 </p>
+  
+  <p>返回值：为number类型</p>
+</blockquote>
+
+<p>比如796期货设置SetRate(6.13), 就是设定USD/EUR对CNY的汇率为6.13, 程序所有价格会自动用这个汇率计算 </p>
+
+<p>SetRate(), 如果不加参数，则恢复系统内置汇率 </p>
+
+<p>SetRate(1), 就是禁用汇率转换</p>
+
+
+
+<h3 id="246-io">2.4.6 IO()</h3>
+
+<blockquote>
+  <p>exchange.IO(“api”, httpMethod, resource, params) </p>
+  
+  <p>调用交易所其它功能接口 </p>
+  
+  <p>参数值：httpMehod为string类型，填入请求类型”POST”或者”GET”,resource为string类型,填入路径,params为string类型，填入交互参数</p>
+</blockquote>
+
+<p>使用此函数需要去交易所了解该交易所的API接口，用来扩展BotVS没有添加的功能。 <br>
+举个例子，比如BotVS平台目前不支持bitfinex交易所的保证金杠杆交易，我们可以通过IO函数来实现这一个功能。 <br>
+先找到bitfinex的API接口说明页面：<a href="https://bitfinex.readme.io/v1/docs/rest-auth">bitfinex</a>,然后我们得知下单是以POST请求交互的，所以我们把参数httpMethod传入”POST”保证金交易的下单地址为：“<a href="https://api.bitfinex.com/v1/order/new">https://api.bitfinex.com/v1/order/new</a>”，因为BotVS已经在内部指定了根地址，所以我们只需要把参数resource的值传入”/v1/order/new”就行了。 <br>
+然后还剩params参数没有填入，params变量代表了所要交互的信息，我们把各种信息以”&amp;”符号链接起来发送即可，我们先到<a href="https://bitfinex.readme.io/v1/docs/rest-auth">bitfinex</a>查看得知下一个买单或卖单需要5个参数，分别是：symbol，amount，price，side，type。我们分别给这5个参数赋值，假如我们要买莱特币LTC，数量为1个，价格为10，为保证金交易模式，那么我们可以构造这么一个字符串：”symbol=ltc&amp;amount=1&amp;price=10&amp;side=buy&amp;type=limit”。 <br>
+最后我们把以上结合通过一行代码即可交易： <br>
+exchange.IO(“api”,”POST”,”/v1/order/new”,”symbol=ltc&amp;amount=1&amp;price=10&amp;side=buy&amp;type=limit”)； <br>
+全部代码例子可到Botvs策略广场：<a href="https://www.botvs.com/strategy/57333">bitfinex保证金交易</a>查看。</p>
+
+<h2 id="25-全局函数">2.5 全局函数</h2>
+
+
+
+<h3 id="251-go">2.5.1 Go()</h3>
+
+<blockquote>
+  <p>Go(Method, Args…) </p>
+  
+  <p>多线程异步支持函数, 可以把所有支持的函数的操作变成异步并发的.(只支持数字货币交易平台) </p>
+  
+  <p>参数值：Method为string类型，函数名</p>
+</blockquote>
+
+<p>支持的函数: GetTicker, GetDepth, GetTrades, GetRecords, GetAccount, GetOrders, GetOrder, CancelOrder, Buy, Sell, GetPosition </p>
+
+<p>var a = exchange.Go(“GetTicker”); GetTicker 异步多线程执行 </p>
+
+<p>var b = exchange.Go(“GetDepth”); </p>
+
+<p>var c = exchange.Go(“Buy”, 1000, 0.1); </p>
+
+<p>var d = exchange.Go(“GetRecords”, PERIOD_H1);</p>
+
+<p>上面四种操作是并发多线程异步执行, 不会耗时, 立即返回的</p>
+
+<p>var ticker = a.wait(); 调用wait方法等待返回异步获取ticker结果 </p>
+
+<p>var depth = b.wait(); 返回深度, 如果获取失败也是有可能返回null的 </p>
+
+<p>var orderId = c.wait(1000); 返回订单号, 限定1秒超时, 超时返回undefined, 此对像可以继续调用wait等待如果上次wait超时 </p>
+
+<p>注意: 判断undefiend要用typeof(xx) === “undefined”, 因为null==undefined在JavaScript里是成立的</p>
+
+<p>var records = d.wait(); 等待K线结果 </p>
+
+<p>var ret = d.wait();  这里wait了一个已经wait过且结束的异步操作, 会返回null, 并记录出错信息. </p>
+
+<p>Python与Javascript的区别, Python的wait返回两个参数, 第一个是异步的api返回的结果, 第二个表示是异步调用是否完成 </p>
+
+<p>ret, ok = d.wait(); ok是一定返回True的, 除非策略被停止 </p>
+
+<p>ret, ok = d.wait(100); ok返回False, 如果等待超时, 或者wait了一个已经结束的实例</p>
+
+
+
+<h3 id="252-log">2.5.2 Log()</h3>
+
+<blockquote>
+  <p>Log(message) </p>
+  
+  <p>保存一条信息到日志列表 </p>
+  
+  <p>参数值：message可以是任意类型</p>
+</blockquote>
+
+<p>如果在字符串后面加上@字符则消息会进入推送队列, 推送到使用绑定的微信账号上(账户安全里绑定)(50条/小时, 1条/5秒 限制) </p>
+
+<p>如: Log(“微信你好 !@”); 或Log(“微信你好, #ff0000@”); </p>
+
+<p>Log支持打印base64编码后的图片, 以”<code>"开头, 以"</code>“结尾, 如Log(“<code>data:image/png;base64,AAAA</code>“) </p>
+
+<p>Log支持直接打印Python的matplotlib.pyplot对象, 只要对象包含savefig方法就可以直接Log打印, 如:  </p>
+
+<p>import matplotlib.pyplot as plt </p>
+
+<p>def main(): </p>
+
+<pre><code>plt.plot([3,6,2,4,7,1]) 
+
+Log(plt)
+</code></pre>
+
+<blockquote>
+  <p>Log(logType, orderId, price, amount) </p>
+  
+  <p>不下单, 只记录交易信息 </p>
+  
+  <p>参数值：logType可为LOG_TYPE_BUY，LOG_TYPE_SELL，LOG_TYPE_CANCEL， orderId为顶单id，price为价格，amount为数量</p>
+</blockquote>
+
+
+
+<h3 id="253-version">2.5.3 Version()</h3>
+
+<blockquote>
+  <p>Version() </p>
+  
+  <p>返回系统当前版本号, 字符串值, 如3.0 </p>
+  
+  <p>返回值：string类型</p>
+</blockquote>
+
+
+
+<h3 id="254-sleep">2.5.4 Sleep()</h3>
+
+<blockquote>
+  <p>Sleep(Millisecond) </p>
+  
+  <p>休眠函数，使程序暂停一段时间 </p>
+  
+  <p>参数值：Millisecond为number类型</p>
+</blockquote>
+
+<p>参数为毫秒数,如Sleep(1000)为休眠一秒</p>
+
+
+
+<h3 id="255-isvirtual">2.5.5 IsVirtual()</h3>
+
+<blockquote>
+  <p>IsVirtual() </p>
+  
+  <p>判断是否是模拟回测 </p>
+  
+  <p>返回值：bool类型</p>
+</blockquote>
+
+<p>模拟回测状态返回true,实盘返回false</p>
+
+
+
+<h3 id="256-logprofit">2.5.6 LogProfit()</h3>
+
+<blockquote>
+  <p>LogProfit(Profit) </p>
+  
+  <p>记录盈利值,这个为总盈利的值 </p>
+  
+  <p>参数值：profit为number类型</p>
+</blockquote>
+
+
+
+<h3 id="257-logprofitreset">2.5.7 LogProfitReset()</h3>
+
+<blockquote>
+  <p>LogProfitReset() </p>
+  
+  <p>清空所有收益日志, 可以带一个数字参数, 指定保留的条数</p>
+</blockquote>
+
+
+
+<h3 id="258-logstatus">2.5.8 LogStatus()</h3>
+
+<blockquote>
+  <p>LogStatus(Msg) </p>
+  
+  <p>此信息不保存到日志列表里, 只更新当前机器人的状态信息, 在日志上方显示, 可多次调用, 更新状态 </p>
+  
+  <p>参数值：Msg可以为任意类型</p>
+</blockquote>
+
+<p>LogStatus(‘这是一个普通的状态提示’); </p>
+
+<p>LogStatus(‘这是一个红色字体的状态提示 #ff0000’); </p>
+
+<p>LogStatus(‘这是一个多行的状态信息\n我是第二行’); </p>
+
+<p>LogStatus支持打印base64编码后的图片, 以”<code>"开头, 以"</code>“结尾, 如LogStatus(“<code>data:image/png;base64,AAAA</code>“) </p>
+
+<p>LogStatus支持直接传入Python的matplotlib.pyplot对象, 只要对象包含savefig方法就可以传入LogStatus, 如:  </p>
+
+<p>import matplotlib.pyplot as plt </p>
+
+<p>def main(): </p>
+
+<pre><code>plt.plot([3,6,2,4,7,1]) 
+
+LogStatus(plt) 
+</code></pre>
+
+<p>var table = {type: ‘table’, title: ‘持仓信息’, cols: [‘列1’, ‘列2’], rows: [ [‘abc’, ‘def’], [‘ABC’, ‘support color #ff0000’]]}; </p>
+
+<p>LogStatus(‘<code>' + JSON.stringify(table)+'</code>‘); // JSON序列化后两边加上`字符, 视为一个复杂消息格式(当前支持表格) </p>
+
+<p>LogStatus(‘第一行消息\n<code>’ + JSON.stringify(table)+’</code>\n第三行消息’); // 表格信息也可以在多行中出现 </p>
+
+<p>LogStatus(‘<code>’ + JSON.stringify([table, table])+’</code>‘); // 支持多个表格同时显示, 将以TAB显示到一组里 </p>
+
+<p>// 也可以构造一个按钮在表格中, 策略用GetCommand接收cmd属性的内容 </p>
+
+<p>var table = { </p>
+
+<pre><code>type: 'table', 
+
+title: '持仓操作', 
+
+cols: ['列1', '列2', 'Action'], 
+
+rows: [ 
+
+    ['abc', 'def', {'type':'button', 'cmd': 'coverAll', 'name': '平仓'}], 
+
+] 
+</code></pre>
+
+<p>}; </p>
+
+<p>LogStatus(‘<code>’ + JSON.stringify(table) + ‘</code>‘) </p>
+
+<p>// 或者构造一单独的按钮 </p>
+
+<p>LogStatus(‘<code>’ + JSON.stringify({‘type’:’button’, ‘cmd’: ‘coverAll’, ‘name’: ‘平仓’}) + ‘</code>‘) </p>
+
+<p>// 可以自定义按钮风格(bootstrap的按钮属性) </p>
+
+<p>LogStatus(‘<code>’ + JSON.stringify({‘type’:’button’, ‘class’: ‘btn btn-xs btn-danger’, ‘cmd’: ‘coverAll’, ‘name’: ‘平仓’}) + ‘</code>’)</p>
+
+
+
+<h3 id="259-enablelog">2.5.9 EnableLog()</h3>
+
+<blockquote>
+  <p>EnableLog(IsEnable) </p>
+  
+  <p>打开或者关闭定单和出错信息的日志记录 </p>
+  
+  <p>参数值：isEnable为bool类型</p>
+</blockquote>
+
+
+
+<h3 id="2510-chart">2.5.10 Chart()</h3>
+
+<blockquote>
+  <p>Chart({…})</p>
+</blockquote>
+
+<p>参数为可以JSON序列化的HighStocks的Highcharts.StockChart参数, 比原生的参数增加一个__isStock属性, 如果指定__isStock: false, 则显示为普通图表 </p>
+
+<p>返回对像可以调用add([series索引(如0), 数据])向指定索引的series添加数据, 调用reset()清空图表数据, reset可以带一个数字参数, 指定保留的条数 </p>
+
+<p>可以调用add([series索引(如0), 数据, 此数据在series中的索引])来更改数据 </p>
+
+<p>可以为负数, -1指最后一个, -2是倒数第二个, 如: </p>
+
+<p>chart.add([0, 13.5, -1]), 更改series[0].data的倒数第一个点的数据 </p>
+
+<p>支持显示多个图表, 配置时只需传入数组参数即可如: var chart = Chart([{…}, {…}, {…}]), 比如图表一有两个series, 图表二有一个series, 图表三有一个series, 那么add时指定0与1序列ID代表更新图表1的两个序列的数据, add时指定序列ID为2指图表2的第一个series的数据, 指定序列3指的是图表3的第一个series的数据 </p>
+
+<p>HighStocks: <a href="http://api.highcharts.com/highstock">http://api.highcharts.com/highstock</a></p>
+
+
+
+<h3 id="2511-mail">2.5.11 Mail()</h3>
+
+<blockquote>
+  <p>Mail(smtpServer, smtpUsername, smtpPassword, mailTo, title, body) </p>
+  
+  <p>发送邮件函数 </p>
+  
+  <p>参数值：都为string类型 </p>
+  
+  <p>返回值：bool类型，发送成功返回true</p>
+</blockquote>
+
+<p>smtpServer为发送邮箱smtp，smtpUsername为邮箱账号，smtpUsername为邮箱密码，mailTo为接受邮箱账号，title为标题，body为内容。例如Mail(“smtp.163.com”, “asdf@163.com”, “password”, “111@163.com”, “title”, “body”)</p>
+
+
+
+<h3 id="2512-seterrorfilter">2.5.12 SetErrorFilter()</h3>
+
+<blockquote>
+  <p>SetErrorFilter(RegEx) </p>
+  
+  <p>错误信息过滤 </p>
+  
+  <p>参数值：string类型</p>
+</blockquote>
+
+<p>被此正则表达式匹配的错误将不上传到日志系统, 可多次调用设置多个 </p>
+
+<p>SetErrorFilter(“502:|503:|tcp|character|unexpected|network|timeout|WSARecv|Connect|GetAddr|no such|reset|http|received|EOF|reused”);</p>
+
+
+
+<h3 id="2513-getpid">2.5.13 GetPid()</h3>
+
+<blockquote>
+  <p>GetPid() </p>
+  
+  <p>返回机器人进程ID </p>
+  
+  <p>返回值：string类型</p>
+</blockquote>
+
+
+
+<h3 id="2514-getlasterror">2.5.14 GetLastError()</h3>
+
+<blockquote>
+  <p>GetLastError() </p>
+  
+  <p>获取最近一次出错信息,一般无需使用,因为程序会把出错信息自动上传到日志系统 </p>
+  
+  <p>返回值：string类型</p>
+</blockquote>
+
+
+
+<h3 id="2515-getcommand">2.5.15 GetCommand()</h3>
+
+<blockquote>
+  <p>GetCommand()  <br>
+   获取交互命令(utf-8)</p>
+</blockquote>
+
+<p>获取策略交互界面发来的命令并清空, 没有命令则返回null, 返回的命令格式为 “按钮名称:参数”, 如果没有参数, 则命令就是按钮名称</p>
+
+
+
+<pre class="prettyprint"><code class="language-java scripts hljs "><span class="hljs-keyword">while</span>(<span class="hljs-keyword">true</span>) { 
+    var cmd = GetCommand(); 
+    <span class="hljs-keyword">if</span> (cmd) { 
+        Log(cmd); 
+    } 
+    Sleep(<span class="hljs-number">1000</span>); 
+}</code></pre>
+
+
+
+<h3 id="2516-dial">2.5.16 Dial()</h3>
+
+<blockquote>
+  <p>Dial(Address, Timeout) </p>
+  
+  <p>原始的Socket访问, 支持tcp, udp, tls, unix 协议 </p>
+  
+  <p>参数值：Address为string类型，填入地址，TimeOut为超时时间</p>
+</blockquote>
+
+
+
+<pre class="prettyprint"><code class="language-java scripts hljs ">var client = Dial(<span class="hljs-string">"tls://www.baidu.com:443"</span>); <span class="hljs-comment">// Dial支持tcp://, udp://, tls://, unix:// 协议, 可加一个参数指定超时的秒数</span>
+<span class="hljs-keyword">if</span> (client) {
+    client.write(<span class="hljs-string">"GET / HTTP/1.1\nConnection: Closed\n\n"</span>); <span class="hljs-comment">// write可再跟一个数字参数指定超时, write返回成功发送的字节数</span>
+    <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) {
+        var buf = client.read();<span class="hljs-comment">// read可再跟一个数字参数指定超时, 返回null指出错或者超时或者socket已经关闭</span>
+        <span class="hljs-keyword">if</span> (!buf) {
+            <span class="hljs-keyword">break</span>;
+        }
+        Log(buf);
+    }
+    client.close();
+}</code></pre>
+
+
+
+<h3 id="2517httpquery">2.5.17HttpQuery()</h3>
+
+<blockquote>
+  <p>HttpQuery(Url, PostData, Cookies, Headers, IsReturnHeader) </p>
+  
+  <p>网络URL访问 </p>
+  
+  <p>参数值：都为string类型</p>
+</blockquote>
+
+<p>HttpQuery(Url, PostData, Cookies, Headers, IsReturnHeader) </p>
+
+<p>获取一个Url的返回内容, 如果第二个参数PostData为字符串就以POST方式提交 </p>
+
+<p>第二个参数PostData可以自定义方法比如HttpQuery(‘<a href="http://www.abc.com">http://www.abc.com</a>‘, {method:’PUT’, data:’xx’}) </p>
+
+<p>传递Cookie字符串需要第三个参数, 但不需要POST请将第二个参数置为null </p>
+
+<p>模拟测试的时候因为无法模拟访问URL, 函数就返回固定字符串 Dummy Data </p>
+
+<p>可以用此接口发送短信, 或者与其它API进行交互 </p>
+
+<p>HttpQuery(“<a href="http://www.baidu.com/">http://www.baidu.com/</a>“); // Get </p>
+
+<p>HttpQuery(“<a href="http://www.163.com">http://www.163.com</a>“, “xxx”); // Post </p>
+
+<p>HttpQuery(“<a href="http://www.baidu.com/">http://www.baidu.com/</a>“, null, “a=10; b=20”, “User-Agent: Mobile\nContent-Type: text/html”, true);  </p>
+
+<p>// will return {Header: HTTP Header, Body: HTML}</p>
+
+
+
+<h3 id="2518-hash">2.5.18 Hash()</h3>
+
+<blockquote>
+  <p>Hash(Algo, OutputAlgo, Data) </p>
+  
+  <p>支持 md5/sha256/sha512/sha1 的哈希计算, 只支持实盘 </p>
+  
+  <p>参数值：都为string类型</p>
+</blockquote>
+
+<p>第二个参数可设置为raw/hex/base64, 分别指输出加密后的 原始内容/hex编码过的/base64编码过的 </p>
+
+<p>Log(Hash(‘md5’, ‘hex’, ‘hello’)); </p>
+
+<p>Log(Hash(‘sha512’, ‘base64’, ‘hello’));</p>
+
+
+
+<h3 id="2519-hmac">2.5.19 HMAC()</h3>
+
+<blockquote>
+  <p>HMAC(Algo, OutputAlgo, Data, Key) </p>
+  
+  <p>支持 md5/sha256/sha512/sha1 的HMAC加密计算, 只支持实盘 </p>
+  
+  <p>参数值：都为string类型</p>
+</blockquote>
+
+<p>第二个参数可设置为raw/hex/base64, 分别指输出加密后的 原始内容/hex编码过的/base64编码过的 </p>
+
+<p>Log(HMAC(‘md5’, ‘hex’, ‘hello’, ‘pass’)); </p>
+
+<p>Log(HMAC(‘sha512’, ‘base64’, ‘hello’, ‘pass’));</p>
+
+
+
+<h2 id="26内置函数">2.6内置函数</h2>
+
+
+
+<h3 id="261-g">2.6.1 _G()</h3>
+
+<blockquote>
+  <p>_G(K, V) </p>
+  
+  <p>可保存的全局字典</p>
+</blockquote>
+
+<p>KV表, 永久保存在本地文件, 每个机器人单独一个数据库, 重启或者托管者退出后一直存在K必须为数字或者字符串, 不区分大小写, V可以为任何可以JSON序列化的内容 </p>
+
+<p>_G(“num”, 1); // 设置一个全局变量num, 值为1 </p>
+
+<p>_G(“num”, “ok”); // 更改一个全局变量num, 值为字符串ok </p>
+
+<p>_G(“num”, null); // 删除全局变量 num </p>
+
+<p>_G(“num”); // 返回全局变量num的值 </p>
+
+<p>_G(); // 返回当前机器人的ID </p>
+
+<p>_G(null); // 删除所有全局变量</p>
+
+
+
+<h3 id="262-d">2.6.2 _D()</h3>
+
+<blockquote>
+  <p>_D(timestamp, fmt=”yyyy-MM-dd hh:mm:ss”) </p>
+  
+  <p>返回指定时间戳 </p>
+  
+  <p>参数值：都为string类型 </p>
+  
+  <p>返回值：string类型</p>
+</blockquote>
+
+<p>返回指定时间戳(ms)字符串, 不传任何参数就返回当前时间,如_D(),或者_D(1478570053241), 默认格式为yyyy-MM-dd hh:mm:ss</p>
+
+
+
+<h3 id="263-n">2.6.3 _N()</h3>
+
+<blockquote>
+  <p>_N(num, precision) </p>
+  
+  <p>格式化一个浮点数 </p>
+  
+  <p>参数值，num为number类型，precision为整型number </p>
+  
+  <p>返回值：number类型</p>
+</blockquote>
+
+<p>例如_N(3.1415, 2),将删除小数点两位以后的值，返回3.14</p>
+
+
+
+<h3 id="264-c">2.6.4 _C()</h3>
+
+<blockquote>
+  <p>_C(function, args…) </p>
+  
+  <p>重试函数</p>
+</blockquote>
+
+<p>会一直调用指定函数到成功返回(函数返回null或者false会重试),比如_C(exchange.GetTicker), 默认重试间隔为3秒, 可以调用_CDelay函数来控制重试间隔，比如_CDelay(1000), 指改变_C函数重试间隔为1秒.建议使用exchange.GetTciker(),exchange.GetDepth(),exchange.GetTrade(),exchange.GetRecords(),exchange.GetAccount()的时候都通过_C来调用，以防出错。</p>
+
+
+
+<h3 id="265-cross">2.6.5 _Cross()</h3>
+
+<blockquote>
+  <p>_Cross(arr1, arr2) </p>
+  
+  <p>返回数组arr1与arr2的交叉周期数. 正数为上穿周期, 负数表示下穿的周期, 0指当前价格一样 </p>
+  
+  <p>参数值：number数组</p>
+</blockquote>
+
+<p>具体使用说明：<a href="https://www.botvs.com/bbs-topic/1140">内置函数 _Cross 分析 及 使用说明</a></p>
+
+
+
+<h3 id="266-自定义颜色">2.6.6 自定义颜色</h3>
+
+<blockquote>
+  <p>每个消息字符串都可以用”#ff0000”这样的RGB值结尾, 代表需要显示的前景色, 如果为#ff0000112233这样的格式, 则后六后代表背景色</p>
+</blockquote>
+
+
+
+<h2 id="27-期货交易">2.7 期货交易</h2>
+
+<p>期货支持传统商品期货CTP协议, BTC期货: 796, BitVC, OKCoin</p>
+
+
+
+<h3 id="271-getposition">2.7.1 GetPosition()</h3>
+
+<blockquote>
+  <p>exchange.GetPosition() </p>
+  
+  <p>获取当前持仓信息, (BitVC和OKCoin)可以传入一个参数, 指定要获取的合约类型 </p>
+  
+  <p>返回值：position结构体数组</p>
+</blockquote>
+
+<p>position结构体包含以下变量：</p>
+
+<p>(object) Info   :交易所返回的原始结构 </p>
+
+<p>(number) MarginLevel    :杆杠大小, 796期货有可能为5, 10, 20三个参数, OKCoin为10或者20, BitVC期货和OK期货的全仓模式返回为固定的10, 因为原生API不支持 </p>
+
+<p>(number) Amount : 持仓量, 796期货表示持币的数量, BitVC指持仓的总金额(100的倍数), OKCoin表示合约的份数(整数且大于1) </p>
+
+<p>(number) CanCover   :可平量, 只有股票有此选项, 表示可以平仓的数量(股票为T+1)今日仓不能平 </p>
+
+<p>(number) FrozenAmount   :仓位冻结量 </p>
+
+<p>(number) Price  :持仓均价 </p>
+
+<p>(number) Profit :持仓浮动盈亏(数据货币单位：BTC/LTC, 传统期货单位:RMB, 股票不支持此字段, 注: OKCoin期货全仓情况下指实现盈余, 并非持仓盈亏, 逐仓下指持仓盈亏) </p>
+
+<p>(const) Type    :PD_LONG为多头仓位(CTP中用closebuy_today平仓), PD_SHORT为空头仓位(CTP用closesell_today)平仓, (CTP期货中)PD_LONG_YD为咋日多头仓位(用closebuy平), PD_SHORT_YD为咋日空头仓位(用closesell平) </p>
+
+<p>(string) ContractType   :商品期货为合约代码, 股票为’交易所代码_股票代码’, 具体参数SetContractType的传入类型</p>
+
+
+
+<h3 id="272-setmarginlevel">2.7.2 SetMarginLevel()</h3>
+
+<blockquote>
+  <p>exchange.SetMarginLevel(MarginLevel) </p>
+  
+  <p>设置杆杠大小 </p>
+  
+  <p>参数值：number整型</p>
+</blockquote>
+
+<p>设置Buy(多单)或者Sell(空单)的杆杠大小, MarginLevel有5, 10, 20 三个可选参数796支持5,10,20,50三个选项, BitVC的LTC不支持20倍杠杆, OKCoin支持10倍和20倍，如: exchange.SetMarginLevel(5)</p>
+
+
+
+<h3 id="273-setdirection">2.7.3 SetDirection()</h3>
+
+<blockquote>
+  <p>exchange.SetDirection(Direction) </p>
+  
+  <p>设置Buy或者Sell下单类型 </p>
+  
+  <p>参数值：string类型</p>
+</blockquote>
+
+<p>Direction可以取buy, closebuy, sell, closesell四个参数, 传统期货多出closebuy_today,与closesell_today, 指平今仓, 默认为closebuy/closesell为平咋仓。对于CTP传统期货, 可以设置第二个参数”1”或者”2”或者”3”, 分别指”投机”, “套利”, “套保”, 不设置默认为投机，股票只支持buy与closebuy, 因为股票只能买跟平仓 </p>
+
+<p>exchange.SetMarginLevel(5); //设置杠杆为5倍 </p>
+
+<p>exchange.SetDirection(“buy”); //设置下单类型为做多 </p>
+
+<p>exchange.Buy(1000, 2); //以1000的价格，合约数量为2下单 </p>
+
+<p>exchange.SetMarginLevel(5); </p>
+
+<p>exchange.SetDirection(“closebuy”); </p>
+
+<p>exchange.Sell(1000, 2);</p>
+
+
+
+<h3 id="274-setcontracttype">2.7.4 SetContractType()</h3>
+
+<blockquote>
+  <p>SetContractType(ContractType) </p>
+  
+  <p>设置合约类型 </p>
+  
+  <p>参数值：string类型</p>
+</blockquote>
+
+<p>传统的CTP期货的ContractType就是指的合约ID,  如SetContractType(“au1506”) 返回合约的详细信息, 如最少一次买多少, 手续费, 交割时间等，主力连续合约为代码为888如MA888, 连续指数合约为000如MA000, 888与000为虚拟合约交易只支持回测, 实盘只支持获取行情。 </p>
+
+<p>订阅虚拟合约成功以后, 返回的字段里面的InstrumentID是主力合约(会在订阅同时获取), 方便策略实盘下单做映射用。 </p>
+
+<p>股票合约格式为 股票代码.(SH/SZ), SH指上交所, SZ指深交所, 如000001.SZ就是指深交所的平安银行。 </p>
+
+<p>数字货币796支持: “week”, “weekcny”, 默认为子账户A, 要指定子账户是A还是B, 在合约后加”@A”或”@B”, 如: “day@A” 为日合约A子账户BitVC有week和quarter和next_week三个可选参数, OKCoin期货有this_week, next_week, quarter三个参数exchange.SetContractType(“week”);</p>
+
+
+
+<h3 id="275-期货交易其他说明">2.7.5 期货交易其他说明</h3>
+
+<blockquote>
+  <p>传统商品期货扩展的IO功能</p>
+</blockquote>
+
+<p>exchange.IO(“status”); // 返回true证明与CTP服务器行情与数据的两台服务器都连接正常 </p>
+
+<p>exchange.IO(“wait”); // 当前交易所有任何品种更新行情信息时才返回, 可带第二个参数(毫秒数)指定超时, 超时返回null, 正常返回EventTick结构 </p>
+
+<p>exchange.IO(“wait_any”); // 同上, 但是指的是有任何一个交易所收到行情信息时就返回,EventTick里的Index指交易所索引 </p>
+
+<p>exchange.IO(“instruments”); // 返回交易所所有的合约列表{合约名: 详情}字典形式, 只支持实盘 </p>
+
+<p>exchange.IO(“products”); // 返回交易所所有的产品列表{产品名: 详情}字典形式, 只支持实盘 </p>
+
+<p>exchange.IO(“subscribed”); // 返回已订阅行情的合约, 格式同上, 只支持实盘 </p>
+
+<p>exchange.IO(“settlement”); // 结算单查询, 不加第二个参数默认返回之前一个交易日的, 加参数如”20170317”指返回20170317的结算单, 只支持实盘</p>
+
+<blockquote>
+  <p>传统商品期货API获取更多信息</p>
+</blockquote>
+
+<p>exchange.GetAccount(); </p>
+
+<p>Log(exchange.GetRawJSON());//在GetAccount成功后调用, 获取更详细的账户信息, 可以用JSON.parse解析。 </p>
+
+<p>也支持GetTicker, GetDepth后的exchange.GetRawJSON(), 以及GetPosition与GetOrders,GetOrder这三个调用后的详细反馈数据。</p>
+
+<blockquote>
+  <p>期货交易中Buy, Sell, CancelOrder和现货交易的区别</p>
+</blockquote>
+
+<p>Buy或Sell之前需要调用SetMarginLevel和SetDirection明确操作类型,数字货币796的CancelOrder之前需要调用SetDirection明确订单类型，如: </p>
+
+<p>exchange.SetDirection(“sell”);  </p>
+
+<p>exchange.Sell(1000, 2);</p>
+
+<p>exchange.SetDirection(“buy”); </p>
+
+<p>exchange.CancelOrder(123);</p>
+
+<blockquote>
+  <p>数字货币BitVC期货交易中Buy, Sell, GetOrder, SetMarginLevel与796的区别</p>
+</blockquote>
+
+<p>GetOrder里面的Amount为订单总金额, DealAmount为订单完成的金额, 不是币的个数，数字货币796的CancelOrder之前需要调用SetDirection明确订单类型，Buy或Sell第二个参数不是币的数量而是订单的总金额(100的倍数)，SetMarginLevel LTC不支持20倍杠杆 </p>
+
+<p>如: </p>
+
+<p>exchange.SetContractType(“week”); </p>
+
+<p>exchange.SetDirection(“sell”); </p>
+
+<p>exchange.Sell(1000, 100); 就是以1000元一个币的价格开100元的空头</p>
+
+
+
+<h1 id="3-指标函数"><strong>3. 指标函数</strong></h1>
+
+<blockquote>
+  <p>附带的第三方库(Javascript)</p>
+</blockquote>
+
+<p><a href="http://mathjs.org/">http://mathjs.org/</a> <br>
+<a href="http://mikemcl.github.io/decimal.js/">http://mikemcl.github.io/decimal.js/</a> <br>
+<a href="http://underscorejs.org/">http://underscorejs.org/</a> <br>
+<a href="http://ta-lib.org/">http://ta-lib.org/</a></p>
+
+<blockquote>
+  <p>调用时加上前缀</p>
+</blockquote>
+
+
+
+<pre class="prettyprint"><code class="language-java scripts hljs ">var records = exchange.GetRecords();
+var macd = TA.MACD(records);
+var atr = TA.ATR(records, <span class="hljs-number">14</span>);
+<span class="hljs-comment">// 打印出最后一排值</span>
+Log(macd[<span class="hljs-number">0</span>][records.length-<span class="hljs-number">1</span>], macd[<span class="hljs-number">1</span>][records.length-<span class="hljs-number">1</span>],
+macd[<span class="hljs-number">2</span>][records.length-<span class="hljs-number">1</span>]);
+Log(atr[atr.length-<span class="hljs-number">1</span>]);
+Log(talib.MACD(records));
+Log(talib.MACD(records, <span class="hljs-number">12</span>, <span class="hljs-number">26</span>, <span class="hljs-number">9</span>));
+Log(talib.OBV(records));
+<span class="hljs-comment">// talib也可以传入数字数组, 依次传入即可</span>
+<span class="hljs-comment">// 如: OBV(Records[Close],Records[Volume]), 需要Close, Volume两个数组参数</span>
+Log(talib.OBV([<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>], [<span class="hljs-number">7.1</span>, <span class="hljs-number">6.2</span>, <span class="hljs-number">3</span>,<span class="hljs-number">3</span>]));
+<span class="hljs-comment">// 也可以直接传入包含Close, Volume属性的records数组</span>
+Log(talib.OBV(records));
+Log(TA.Highest(records, <span class="hljs-number">30</span>, <span class="hljs-string">'High'</span>));
+Log(TA.Highest([<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>], <span class="hljs-number">0</span>));
+<span class="hljs-comment">// 针对Python, 系统扩展了GetRecords返回的数组的属性, 增加了Open, High, Low, Close, Volume, 方便talib调用, 如</span>
+talib.MACD(records.Close); <span class="hljs-comment">// Close属性会返回records所有成员的Close属性做为numpy数组传给talib, 其它的属性同样这样调用</span>
+math.std([<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>]);
+_.map([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], function(num){ <span class="hljs-keyword">return</span> num * <span class="hljs-number">3</span>; });</code></pre>
+
+<hr>
+
+
+
+<h3 id="31-macd指数平滑异同平均线">3.1 MACD(),指数平滑异同平均线</h3>
+
+<blockquote>
+  <p>MACD(数据, 快周期, 慢周期, 信号周期) <br>
+  默认参数为(12, 26, 9), 返回二维数组, 分别是[DIF, DEA, MACD]</p>
+</blockquote>
+
+
+
+<h3 id="32-kdj-随机指标">3.2 KDJ(), 随机指标</h3>
+
+<blockquote>
+  <p>KDJ(数据, 周期1, 周期2, 周期3) <br>
+  默认参数为(9, 3, 3), 返回二维数组, 分别是[K, D, J]</p>
+</blockquote>
+
+
+
+<h3 id="33-rsi-强弱指标">3.3 RSI(),   强弱指标</h3>
+
+<blockquote>
+  <p>RSI(数据, 周期) <br>
+  默认参数为14, 返回一个一维数组</p>
+</blockquote>
+
+
+
+<h3 id="34-atr-平均真实波幅">3.4 ATR(), 平均真实波幅</h3>
+
+<blockquote>
+  <p>ATR(数据, 周期)</p>
+</blockquote>
+
+
+
+<h3 id="35-obv-能量潮">3.5 OBV(), 能量潮</h3>
+
+<blockquote>
+  <p>OBV(数据) <br>
+  默认参数为14, 返回一个一维数组</p>
+</blockquote>
+
+
+
+<h3 id="36-ma-移动平均线">3.6 MA(), 移动平均线</h3>
+
+<blockquote>
+  <p>MA(数据, 周期)</p>
+</blockquote>
+
+
+
+<h3 id="37-ema-指数平均数指标">3.7 EMA(), 指数平均数指标</h3>
+
+<blockquote>
+  <p>EMA(数据, 周期)</p>
+</blockquote>
+
+
+
+<h3 id="38-boll-布林带">3.8 BOLL(), 布林带</h3>
+
+<blockquote>
+  <p>BOLL(数据, 周期, 乘数)</p>
+</blockquote>
+
+
+
+<h3 id="39-alligator-alligator-indicator">3.9 Alligator(), Alligator Indicator</h3>
+
+<blockquote>
+  <p>Alligator(数据, 下颚周期,牙齿周期,上唇周期)</p>
+</blockquote>
+
+
+
+<h3 id="310-cmf-chaikin-money-flow">3.10 CMF(), Chaikin Money Flow</h3>
+
+<blockquote>
+  <p>CMF(数据, 周期)</p>
+</blockquote>
+
+
+
+<h3 id="311-highest-周期最高价">3.11 Highest(), 周期最高价</h3>
+
+<blockquote>
+  <p>Highest(数据, 周期, 属性) <br>
+  返回最近周期内的最大值(不包含当前Bar), 如TA.Highest(records, 30, ‘High’), 如果周期为0指所有, 如属性不指定则视数据为普通数组.</p>
+</blockquote>
+
+
+
+<h3 id="312-lowest-周期最低价">3.12 Lowest(), 周期最低价</h3>
+
+<blockquote>
+  <p>Lowest(数据, 周期, 属性), <br>
+  返回最近周期内的最小值(不包含当前Bar), 如TA.Lowest(records, 30, ‘Low’), 如果周期为0指所有, 如属性不指定则视数据为普通数组.</p>
+</blockquote>
+
+
+
+<h3 id="313-help-查询指标调用格式">3.13 help(), 查询指标调用格式</h3>
+
+<blockquote>
+  <p>talib.help(‘MACD’),  <br>
+  Log(talib.help(‘MACD’)); 在回测环境下调用</p>
+</blockquote>
+
+
+
+<h3 id="314-acos-vector-trigonometric-acos-反余弦函数">3.14 ACOS(), Vector Trigonometric ACos (反余弦函数)</h3>
+
+<blockquote>
+  <p>ACOS(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="315-ad-chaikin-ad-line-线随机指标">3.15 AD(), Chaikin A/D Line (线随机指标)</h3>
+
+<blockquote>
+  <p>AD(Records[High,Low,Close,Volume]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="316-adosc-chaikin-ad-oscillator-佳庆指标">3.16 ADOSC(), Chaikin A/D Oscillator (佳庆指标)</h3>
+
+<blockquote>
+  <p>ADOSC(Records[High,Low,Close,Volume],Fast Period = 3,Slow Period = 10) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="317-asin-vector-trigonometric-asin-反正弦函数">3.17 ASIN(),    Vector Trigonometric ASin (反正弦函数)</h3>
+
+<blockquote>
+  <p>ASIN(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="318-atan-vector-trigonometric-atan-反正切函数">3.18 ATAN(), Vector Trigonometric ATan (反正切函数)</h3>
+
+<blockquote>
+  <p>ATAN(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="319-atr-average-true-range-平均真实波幅">3.19 ATR(), Average True Range (平均真实波幅)</h3>
+
+<blockquote>
+  <p>ATR(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="320-avgprice-average-price-平均价格">3.20 AVGPRICE(), Average Price (平均价格)</h3>
+
+<blockquote>
+  <p>AVGPRICE(Records[Open,High,Low,Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="321-bbands-bollinger-bands-布林带">3.21 BBANDS(), Bollinger Bands (布林带)</h3>
+
+<blockquote>
+  <p>BBANDS(Records[Close],Time Period = 5,Deviations up = 2,Deviations down = 2,MA Type = 0) = [Array(outRealUpperBand),Array(outRealMiddleBand),Array(outRealLowerBand)]</p>
+</blockquote>
+
+
+
+<h3 id="322-bop-balance-of-power-均势指标">3.22 BOP(), Balance Of Power (均势指标)</h3>
+
+<blockquote>
+  <p>BOP(Records[Open,High,Low,Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="323-cci-commodity-channel-index-顺势指标">3.23 CCI(),     Commodity Channel Index (顺势指标)</h3>
+
+<blockquote>
+  <p>CCI(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="324-cdl2crows-two-crows-k线图两只乌鸦">3.24 CDL2CROWS(), Two Crows (K线图–两只乌鸦)</h3>
+
+<blockquote>
+  <p>CDL2CROWS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="325-cdl3blackcrows-three-black-crows-k线图3只黑乌鸦">3.25 CDL3BLACKCROWS(), Three Black Crows (K线图–3只黑乌鸦)</h3>
+
+<blockquote>
+  <p>CDL3BLACKCROWS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="326-cdl3inside-three-inside-updown-k线图3内上下震荡">3.26 CDL3INSIDE(), Three Inside Up/Down (K线图:3内上下震荡)</h3>
+
+<blockquote>
+  <p>CDL3INSIDE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="327-cdl3linestrike-three-line-strike-k线图3线震荡">3.27 CDL3LINESTRIKE(),  Three-Line Strike (K线图:3线震荡)</h3>
+
+<blockquote>
+  <p>CDL3LINESTRIKE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="328-cdl3outside-three-outside-updown-k线图3外下震荡">3.28 CDL3OUTSIDE(), Three Outside Up/Down (K线图:3外下震荡)</h3>
+
+<blockquote>
+  <p>CDL3OUTSIDE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="329-cdl3starsinsouth-three-stars-in-the-south-k线图南方三星">3.29 CDL3STARSINSOUTH(), Three Stars In The South (K线图:南方三星)</h3>
+
+<blockquote>
+  <p>CDL3STARSINSOUTH(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="330-cdl3whitesoldiers-three-advancing-white-soldiers-k线图三白兵">3.30 CDL3WHITESOLDIERS(), Three Advancing White Soldiers (K线图:三白兵)</h3>
+
+<blockquote>
+  <p>CDL3WHITESOLDIERS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="331-cdlabandonedbaby-abandoned-baby-k线图弃婴">3.31 CDLABANDONEDBABY(), Abandoned Baby (K线图:弃婴)</h3>
+
+<blockquote>
+  <p>CDLABANDONEDBABY(Records[Open,High,Low,Close],Penetration = 0.3) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="332-cdladvanceblock-advance-block-k线图推进">3.32 CDLADVANCEBLOCK(), Advance Block (K线图:推进)</h3>
+
+<blockquote>
+  <p>CDLADVANCEBLOCK(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="333-cdlbelthold-belt-hold-k线图带住">3.33 CDLBELTHOLD(), Belt-hold (K线图:带住)</h3>
+
+<blockquote>
+  <p>CDLBELTHOLD(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="334-cdlbreakaway-breakaway-k线图分离">3.34 CDLBREAKAWAY(), Breakaway (K线图:分离)</h3>
+
+<blockquote>
+  <p>CDLBREAKAWAY(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="335-cdlclosingmarubozu-closing-marubozu-k线图收盘光头光脚">3.35 CDLCLOSINGMARUBOZU(), Closing Marubozu (K线图:收盘光头光脚)</h3>
+
+<blockquote>
+  <p>CDLCLOSINGMARUBOZU(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="336-cdlconcealbabyswall-concealing-baby-swallow-k线图藏婴吞没形态">3.36 CDLCONCEALBABYSWALL(), Concealing Baby Swallow (K线图:藏婴吞没形态)</h3>
+
+<blockquote>
+  <p>CDLCONCEALBABYSWALL(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="337-cdlcounterattack-counterattack-k线图反击">3.37 CDLCOUNTERATTACK(), Counterattack (K线图:反击)</h3>
+
+<blockquote>
+  <p>CDLCOUNTERATTACK(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="338-cdldarkcloudcover-dark-cloud-cover-k线图乌云盖">3.38 CDLDARKCLOUDCOVER(), Dark Cloud Cover (K线图:乌云盖)</h3>
+
+<blockquote>
+  <p>CDLDARKCLOUDCOVER(Records[Open,High,Low,Close],Penetration = 0.5) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="339-cdldoji-doji-k线图十字星">3.39 CDLDOJI(), Doji (K线图:十字星 )</h3>
+
+<blockquote>
+  <p>CDLDOJI(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="340-cdldojistar-doji-star-k线图十字星">3.40 CDLDOJISTAR(), Doji Star (K线图:十字星)</h3>
+
+<blockquote>
+  <p>CDLDOJISTAR(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="341-cdldragonflydoji-dragonfly-doji-k线图蜻蜓十字星">3.41 CDLDRAGONFLYDOJI(), Dragonfly Doji (K线图:蜻蜓十字星)</h3>
+
+<blockquote>
+  <p>CDLDRAGONFLYDOJI(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="342-cdlengulfing-engulfing-pattern-k线图吞没">3.42 CDLENGULFING(), Engulfing Pattern (K线图:吞没)</h3>
+
+<blockquote>
+  <p>CDLENGULFING(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="343-cdleveningdojistar-evening-doji-star-k线图黄昏十字星">3.43 CDLEVENINGDOJISTAR(),   Evening Doji Star (K线图:黄昏十字星)</h3>
+
+<blockquote>
+  <p>CDLEVENINGDOJISTAR(Records[Open,High,Low,Close],Penetration = 0.3) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="344-cdleveningstar-evening-star-k线图黄昏之星">3.44 CDLEVENINGSTAR(), Evening Star (K线图:黄昏之星)</h3>
+
+<blockquote>
+  <p>CDLEVENINGSTAR(Records[Open,High,Low,Close],Penetration = 0.3) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="345-cdlgapsidesidewhite-updown-gap-side-by-side-white-lines-k线图上下间隙并排的白色线条">3.45 CDLGAPSIDESIDEWHITE(), Up/Down-gap side-by-side white lines (K线图:上/下间隙并排的白色线条)</h3>
+
+<blockquote>
+  <p>CDLGAPSIDESIDEWHITE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="346-cdlgravestonedojigravestone-doji-k线图墓碑十字线">3.46 CDLGRAVESTONEDOJI(),Gravestone Doji (K线图:墓碑十字线)</h3>
+
+<blockquote>
+  <p>CDLGRAVESTONEDOJI(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="347-cdlhammer-hammer-k线图锤">3.47 CDLHAMMER(),    Hammer (K线图:锤)</h3>
+
+<blockquote>
+  <p>CDLHAMMER(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="348cdlhangingman-hanging-man-k线图吊人">3.48CDLHANGINGMAN(), Hanging Man (K线图:吊人)</h3>
+
+<blockquote>
+  <p>CDLHANGINGMAN(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="349-cdlharami-harami-pattern-k线图阴阳线">3.49 CDLHARAMI(),    Harami Pattern (K线图:阴阳线)</h3>
+
+<blockquote>
+  <p>CDLHARAMI(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="350-cdlharamicrossharami-cross-pattern-k线图交叉阴阳线">3.50 CDLHARAMICROSS(),Harami Cross Pattern (K线图:交叉阴阳线)</h3>
+
+<blockquote>
+  <p>CDLHARAMICROSS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="351-cdlhighwavehigh-wave-candle-k线图长脚十字线">3.51 CDLHIGHWAVE(),High-Wave Candle (K线图:长脚十字线 )</h3>
+
+<blockquote>
+  <p>CDLHIGHWAVE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="352-cdlhikkake-hikkake-pattern-k线图陷阱">3.52 CDLHIKKAKE(), Hikkake Pattern (K线图:陷阱)</h3>
+
+<blockquote>
+  <p>CDLHIKKAKE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="353-cdlhikkakemod-modified-hikkake-pattern-k线图改良的陷阱">3.53 CDLHIKKAKEMOD(), Modified Hikkake Pattern (K线图:改良的陷阱)</h3>
+
+<blockquote>
+  <p>CDLHIKKAKEMOD(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="354-cdlhomingpigeon-homing-pigeon-k线图信鸽">3.54 CDLHOMINGPIGEON(),  Homing Pigeon (K线图:信鸽)</h3>
+
+<blockquote>
+  <p>CDLHOMINGPIGEON(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="355-cdlidentical3crows-identical-three-crows-k线图相同的三只乌鸦">3.55 CDLIDENTICAL3CROWS(),   Identical Three Crows (K线图:相同的三只乌鸦)</h3>
+
+<blockquote>
+  <p>CDLIDENTICAL3CROWS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="356-cdlinneck-in-neck-pattern-k线图颈纹">3.56 CDLINNECK() In-Neck Pattern (K线图:颈纹)</h3>
+
+<blockquote>
+  <p>CDLINNECK(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="357-cdlinvertedhammer-inverted-hammer-k线图倒锤">3.57 CDLINVERTEDHAMMER()    Inverted Hammer (K线图:倒锤)</h3>
+
+<blockquote>
+  <p>CDLINVERTEDHAMMER(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="358-cdlkicking-kicking-k线图踢">3.58 CDLKICKING(),   Kicking (K线图:踢)</h3>
+
+<blockquote>
+  <p>CDLKICKING(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="359-cdlkickingbylength-kicking-bullbear-determined-by-the-longer-marubozu-k线图踢牛踢熊">3.59 CDLKICKINGBYLENGTH(),   Kicking - bull/bear determined by the longer marubozu (K线图:踢牛/踢熊)</h3>
+
+<blockquote>
+  <p>CDLKICKINGBYLENGTH(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="360-cdlladderbottom-ladder-bottom-k线图梯底">3.60 CDLLADDERBOTTOM(), Ladder Bottom (K线图:梯底)</h3>
+
+<blockquote>
+  <p>CDLLADDERBOTTOM(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="361-cdllongleggeddoji-long-legged-doji-k线图长腿十字线">3.61 CDLLONGLEGGEDDOJI(),    Long Legged Doji (K线图:长腿十字线)</h3>
+
+<blockquote>
+  <p>CDLLONGLEGGEDDOJI(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="362-cdllongline-long-line-candle-k线图长线">3.62 CDLLONGLINE(),  Long Line Candle (K线图:长线)</h3>
+
+<blockquote>
+  <p>CDLLONGLINE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="363-cdlmarubozu-marubozu-k线图光头光脚">3.63 CDLMARUBOZU(),  Marubozu (K线图:光头光脚 )</h3>
+
+<blockquote>
+  <p>CDLMARUBOZU(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="364-cdlmatchinglow-matching-low-k线图匹配低">3.64 CDLMATCHINGLOW(),  Matching Low (K线图:匹配低)</h3>
+
+<blockquote>
+  <p>CDLMATCHINGLOW(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="365-cdlmathold-mat-hold-k线图垫住">3.65 CDLMATHOLD(), Mat Hold (K线图:垫住)</h3>
+
+<blockquote>
+  <p>CDLMATHOLD(Records[Open,High,Low,Close],Penetration = 0.5) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="366cdlmorningdojistar-morning-doji-star-k线图早晨十字星">3.66CDLMORNINGDOJISTAR(),    Morning Doji Star (K线图:早晨十字星)</h3>
+
+<blockquote>
+  <p>CDLMORNINGDOJISTAR(Records[Open,High,Low,Close],Penetration = 0.3) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="367-cdlmorningstar-morning-star-k线图晨星">3.67 CDLMORNINGSTAR(),   Morning Star (K线图:晨星)</h3>
+
+<blockquote>
+  <p>CDLMORNINGSTAR(Records[Open,High,Low,Close],Penetration = 0.3) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="368-cdlonneckon-neck-pattern-k线图颈型">3.68 CDLONNECK(),On-Neck Pattern (K线图:颈型)</h3>
+
+<blockquote>
+  <p>CDLONNECK(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="369-cdlpiercing-piercing-pattern-k线图穿孔模式">3.69 CDLPIERCING(),  Piercing Pattern (K线图:穿孔模式)</h3>
+
+<blockquote>
+  <p>CDLPIERCING(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="370-cdlrickshawman-rickshaw-man-k线图车夫">3.70 CDLRICKSHAWMAN(), Rickshaw Man (K线图:车夫)</h3>
+
+<blockquote>
+  <p>CDLRICKSHAWMAN(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="371-cdlrisefall3methods-risingfalling-three-methods-k线图上升下降三法">3.71 CDLRISEFALL3METHODS(),  Rising/Falling Three Methods (K线图:上升/下降三法)</h3>
+
+<blockquote>
+  <p>CDLRISEFALL3METHODS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="372-cdlseparatinglines-separating-lines-k线图分割线">3.72 CDLSEPARATINGLINES(),   Separating Lines (K线图:分割线)</h3>
+
+<blockquote>
+  <p>CDLSEPARATINGLINES(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="373-cdlshootingstar-shooting-star-k线图流星">3.73 CDLSHOOTINGSTAR(),  Shooting Star (K线图:流星)</h3>
+
+<blockquote>
+  <p>CDLSHOOTINGSTAR(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="374-cdlshortline-short-line-candle-k线图短线">3.74 CDLSHORTLINE(), Short Line Candle (K线图:短线)</h3>
+
+<blockquote>
+  <p>CDLSHORTLINE(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="375-cdlspinningtop-spinning-top-k线图陀螺">3.75 CDLSPINNINGTOP(),   Spinning Top (K线图:陀螺)</h3>
+
+<blockquote>
+  <p>CDLSPINNINGTOP(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="376-cdlstalledpattern-stalled-pattern-k线图停滞模式">3.76 CDLSTALLEDPATTERN(),    Stalled Pattern (K线图:停滞模式)</h3>
+
+<blockquote>
+  <p>CDLSTALLEDPATTERN(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="377-cdlsticksandwich-stick-sandwich-k线图棍子三明治">3.77 CDLSTICKSANDWICH(), Stick Sandwich (K线图:棍子三明治)</h3>
+
+<blockquote>
+  <p>CDLSTICKSANDWICH(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="378-cdltakuri-takuri-dragonfly-doji-with-very-long-lower-shadow-k线图托里">3.78 CDLTAKURI(),    Takuri (Dragonfly Doji with very long lower shadow) (K线图:托里)</h3>
+
+<blockquote>
+  <p>CDLTAKURI(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="379-cdltasukigap-tasuki-gap-k线图翼隙">3.79 CDLTASUKIGAP(), Tasuki Gap (K线图:翼隙)</h3>
+
+<blockquote>
+  <p>CDLTASUKIGAP(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="380-cdlthrusting-thrusting-pattern-k线图推模式">3.80 CDLTHRUSTING(), Thrusting Pattern (K线图:推模式)</h3>
+
+<blockquote>
+  <p>CDLTHRUSTING(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="381-cdltristar-tristar-pattern-k线图三星模式">3.81 CDLTRISTAR(),   Tristar Pattern (K线图:三星模式)</h3>
+
+<blockquote>
+  <p>CDLTRISTAR(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="382-cdlunique3river-unique-3-river-k线图独特的3河">3.82 CDLUNIQUE3RIVER(),  Unique 3 River (K线图:独特的3河)</h3>
+
+<blockquote>
+  <p>CDLUNIQUE3RIVER(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="383-cdlupsidegap2crowsupside-gap-two-crows-k线图双飞乌鸦">3.83 CDLUPSIDEGAP2CROWS(),Upside Gap Two Crows (K线图:双飞乌鸦)</h3>
+
+<blockquote>
+  <p>CDLUPSIDEGAP2CROWS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="384cdlxsidegap3methodsupsidedownside-gap-three-methods-k线图上行下行缺口三方法">3.84CDLXSIDEGAP3METHODS(),Upside/Downside Gap Three Methods (K线图:上行/下行缺口三方法)</h3>
+
+<blockquote>
+  <p>CDLXSIDEGAP3METHODS(Records[Open,High,Low,Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="385-ceil-vector-ceil-取整函数">3.85 CEIL(), Vector Ceil (取整函数)</h3>
+
+<blockquote>
+  <p>CEIL(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="386-cmo-chande-momentum-oscillator-钱德动量摆动指标">3.86 CMO(),  Chande Momentum Oscillator (钱德动量摆动指标)</h3>
+
+<blockquote>
+  <p>CMO(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="387-cos-vector-trigonometric-cos-余弦函数">3.87 COS(),  Vector Trigonometric Cos (余弦函数)</h3>
+
+<blockquote>
+  <p>COS(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="388-cosh-vector-trigonometric-cosh-双曲余弦值">3.88 COSH(), Vector Trigonometric Cosh (双曲余弦值)</h3>
+
+<blockquote>
+  <p>COSH(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="389-dema-double-exponential-moving-average-双指数移动平均线">3.89 DEMA(), Double Exponential Moving Average (双指数移动平均线)</h3>
+
+<blockquote>
+  <p>DEMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="390-dx-directional-movement-index-动向指数">3.90 DX(),   Directional Movement Index (动向指数)</h3>
+
+<blockquote>
+  <p>DX(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="391-ema-exponential-moving-average-指数移动平均线">3.91 EMA(),  Exponential Moving Average (指数移动平均线)</h3>
+
+<blockquote>
+  <p>EMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="392-exp-vector-arithmetic-exp-指数函数">3.92 EXP(),  Vector Arithmetic Exp (指数函数)</h3>
+
+<blockquote>
+  <p>EXP(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="393-floor-vector-floor-向下取整">3.93 FLOOR(),   Vector Floor (向下取整)</h3>
+
+<blockquote>
+  <p>FLOOR(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="394-htdcperiod-hilbert-transform-dominant-cycle-period-希尔伯特变换-主周期">3.94 HT_DCPERIOD(),  Hilbert Transform - Dominant Cycle Period (希尔伯特变换, 主周期)</h3>
+
+<blockquote>
+  <p>HT_DCPERIOD(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="395-htdcphase-hilbert-transform-dominant-cycle-phase-希尔伯特变换主阶段">3.95 HT_DCPHASE(),   Hilbert Transform - Dominant Cycle Phase (希尔伯特变换,主阶段)</h3>
+
+<blockquote>
+  <p>HT_DCPHASE(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="396-htphasorhilbert-transform-phasor-components-希尔伯特变换相成分">3.96 HT_PHASOR(),Hilbert Transform - Phasor Components (希尔伯特变换,相成分)</h3>
+
+<blockquote>
+  <p>HT_PHASOR(Records[Close]) = [Array(outInPhase),Array(outQuadrature)]</p>
+</blockquote>
+
+
+
+<h3 id="397-htsine-hilbert-transform-sinewave-希尔伯特变换正弦波">3.97 HT_SINE(),  Hilbert Transform - SineWave (希尔伯特变换,正弦波)</h3>
+
+<blockquote>
+  <p>HT_SINE(Records[Close]) = [Array(outSine),Array(outLeadSine)]</p>
+</blockquote>
+
+
+
+<h3 id="398-httrendline-hilbert-transform-instantaneous-trendline-希尔伯特变换瞬时趋势">3.98 HT_TRENDLINE(), Hilbert Transform - Instantaneous Trendline (希尔伯特变换,瞬时趋势)</h3>
+
+<blockquote>
+  <p>HT_TRENDLINE(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="399-httrendmode-hilbert-transform-trend-vs-cycle-mode-希尔伯特变换-趋势与周期模式">3.99 HT_TRENDMODE(), Hilbert Transform - Trend vs Cycle Mode (希尔伯特变换-趋势与周期模式)</h3>
+
+<blockquote>
+  <p>HT_TRENDMODE(Records[Close]) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="3100-kama-kaufman-adaptive-moving-average-适应性移动平均线">3.100 KAMA(),    Kaufman Adaptive Moving Average (适应性移动平均线)</h3>
+
+<blockquote>
+  <p>KAMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3101-linearreg-linear-regression-线性回归">3.101 LINEARREG(),   Linear Regression (线性回归)</h3>
+
+<blockquote>
+  <p>LINEARREG(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3102-linearregangle-linear-regression-angle-线性回归的角度">3.102 LINEARREG_ANGLE(), Linear Regression Angle (线性回归的角度)</h3>
+
+<blockquote>
+  <p>LINEARREG_ANGLE(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3103-linearregintercept-linear-regression-intercept-线性回归截距">3.103 LINEARREG_INTERCEPT(), Linear Regression Intercept (线性回归截距)</h3>
+
+<blockquote>
+  <p>LINEARREG_INTERCEPT(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3104-linearregslope-linear-regression-slope-线性回归斜率">3.104 LINEARREG_SLOPE(), Linear Regression Slope (线性回归斜率)</h3>
+
+<blockquote>
+  <p>LINEARREG_SLOPE(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3105-ln-vector-log-natural-自然对数">3.105 LN(),  Vector Log Natural (自然对数)</h3>
+
+<blockquote>
+  <p>LN(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3106-log10vector-log10-对数函数">3.106 LOG10(),Vector Log10 (对数函数)</h3>
+
+<blockquote>
+  <p>LOG10(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3107-ma-moving-average-移动平均线">3.107 MA(),  Moving average (移动平均线)</h3>
+
+<blockquote>
+  <p>MA(Records[Close],Time Period = 30,MA Type = 0) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3108-macd-moving-average-convergencedivergence-指数平滑移动平均线">3.108 MACD(),    Moving Average Convergence/Divergence (指数平滑移动平均线)</h3>
+
+<blockquote>
+  <p>MACD(Records[Close],Fast Period = 12,Slow Period = 26,Signal Period = 9) = [Array(outMACD),Array(outMACDSignal),Array(outMACDHist)]</p>
+</blockquote>
+
+
+
+<h3 id="3109-macdext-macd-with-controllable-ma-type-ma型可控-macd">3.109 MACDEXT(), MACD with controllable MA type (MA型可控 MACD)</h3>
+
+<blockquote>
+  <p>MACDEXT(Records[Close],Fast Period = 12,Fast MA = 0,Slow Period = 26,Slow MA = 0,Signal Period = 9,Signal MA = 0) = [Array(outMACD),Array(outMACDSignal),Array(outMACDHist)]</p>
+</blockquote>
+
+
+
+<h3 id="3110-macdfix-moving-average-convergencedivergence-fix-1226-移动平均收敛发散修复1226">3.110 MACDFIX(), Moving Average Convergence/Divergence Fix 12/26 (移动平均收敛/发散修复12/26)</h3>
+
+<blockquote>
+  <p>MACDFIX(Records[Close],Signal Period = 9) = [Array(outMACD),Array(outMACDSignal),Array(outMACDHist)]</p>
+</blockquote>
+
+
+
+<h3 id="3111-mama-mesa-adaptive-moving-average-mesa-移动平均线">3.111 MAMA(),    MESA Adaptive Moving Average (MESA 移动平均线)</h3>
+
+<blockquote>
+  <p>MAMA(Records[Close],Fast Limit = 0.5,Slow Limit = 0.05) = [Array(outMAMA),Array(outFAMA)]</p>
+</blockquote>
+
+
+
+<h3 id="3112-max-highest-value-over-a-specified-period-最大值">3.112 MAX(), Highest value over a specified period (最大值)</h3>
+
+<blockquote>
+  <p>MAX(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3113-maxindexindex-of-highest-value-over-a-specified-period-最大值索引">3.113 MAXINDEX(),Index of highest value over a specified period (最大值索引)</h3>
+
+<blockquote>
+  <p>MAXINDEX(Records[Close],Time Period = 30) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="3114-medprice-median-price-中位数价格">3.114 MEDPRICE(),    Median Price (中位数价格)</h3>
+
+<blockquote>
+  <p>MEDPRICE(Records[High,Low]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3115-mfi-money-flow-index-货币流量指数">3.115 MFI(), Money Flow Index (货币流量指数)</h3>
+
+<blockquote>
+  <p>MFI(Records[High,Low,Close,Volume],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3116-midpoint-midpoint-over-period-中点">3.116 MIDPOINT(),    MidPoint over period (中点)</h3>
+
+<blockquote>
+  <p>MIDPOINT(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3117-midprice-midpoint-price-over-period-中点价格">3.117 MIDPRICE(),    Midpoint Price over period (中点价格)</h3>
+
+<blockquote>
+  <p>MIDPRICE(Records[High,Low],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3118-min-lowest-value-over-a-specified-period-最小值">3.118 MIN(), Lowest value over a specified period (最小值)</h3>
+
+<blockquote>
+  <p>MIN(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3119-minindex-index-of-lowest-value-over-a-specified-period-最小值索引">3.119 MININDEX(),    Index of lowest value over a specified period (最小值索引)</h3>
+
+<blockquote>
+  <p>MININDEX(Records[Close],Time Period = 30) = Array(outInteger)</p>
+</blockquote>
+
+
+
+<h3 id="3120-minmax-lowest-and-highest-values-over-a-specified-period-最小最大值">3.120 MINMAX(),  Lowest and highest values over a specified period (最小最大值)</h3>
+
+<blockquote>
+  <p>MINMAX(Records[Close],Time Period = 30) = [Array(outMin),Array(outMax)]</p>
+</blockquote>
+
+
+
+<h3 id="3121-minmaxindex-indexes-of-lowest-and-highest-values-over-a-specified-period-最小最大值索引">3.121 MINMAXINDEX(), Indexes of lowest and highest values over a specified period (最小最大值索引)</h3>
+
+<blockquote>
+  <p>MINMAXINDEX(Records[Close],Time Period = 30) = [Array(outMinIdx),Array(outMaxIdx)]</p>
+</blockquote>
+
+
+
+<h3 id="3122-minusdi-minus-directional-indicator-负向指标">3.122 MINUS_DI(),   Minus Directional Indicator (负向指标)</h3>
+
+<blockquote>
+  <p>MINUS_DI(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3123-minusdm-minus-directional-movement-负向运动">3.123 MINUS_DM(),    Minus Directional Movement (负向运动).</h3>
+
+<blockquote>
+  <p>MINUS_DM(Records[High,Low],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3124-mom-momentum-动量">3.124 MOM(), Momentum (动量)</h3>
+
+<blockquote>
+  <p>MOM(Records[Close],Time Period = 10) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3125-natr-normalized-average-true-range-归一化平均值范围">3.125 NATR(),    Normalized Average True Range (归一化平均值范围)</h3>
+
+<blockquote>
+  <p>NATR(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3126-obv-on-balance-volume-能量潮">3.126 OBV(), On Balance Volume (能量潮)</h3>
+
+<blockquote>
+  <p>OBV(Records[Close],Records[Volume]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3127-plusdi-plus-directional-indicator-更向指示器">3.127 PLUS_DI(), Plus Directional Indicator (更向指示器)</h3>
+
+<blockquote>
+  <p>PLUS_DI(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3128-plusdm-plus-directional-movement-定向运动">3.128 PLUS_DM(), Plus Directional Movement (定向运动)</h3>
+
+<blockquote>
+  <p>PLUS_DM(Records[High,Low],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3129-ppo-percentage-price-oscillator-价格振荡百分比">3.129 PPO(), Percentage Price Oscillator (价格振荡百分比)</h3>
+
+<blockquote>
+  <p>PPO(Records[Close],Fast Period = 12,Slow Period = 26,MA Type = 0) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3130-roc-rate-of-changepriceprevprice-1100-变动率指标">3.130 ROC(), Rate of change((price/prevPrice)-1)*100 (变动率指标)</h3>
+
+<blockquote>
+  <p>ROC(Records[Close],Time Period = 10) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3131-rocp-rate-of-change-percentage-price-prevpriceprevprice-价格变化率">3.131 ROCP(),    Rate of change Percentage: (price-prevPrice)/prevPrice (价格变化率)</h3>
+
+<blockquote>
+  <p>ROCP(Records[Close],Time Period = 10) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3132-rocr-rate-of-change-ratio-priceprevprice-价格变化率2">3.132 ROCR   Rate of change ratio: (price/prevPrice) (价格变化率2)</h3>
+
+<blockquote>
+  <p>ROCR(Records[Close],Time Period = 10) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3133-rocr100-rate-of-change-ratio-100-scale-priceprevprice100-价格变化率">3.133 ROCR100(), Rate of change ratio 100 scale: (price/prevPrice)*100 (价格变化率)</h3>
+
+<blockquote>
+  <p>ROCR100(Records[Close],Time Period = 10) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3134-rsi-relative-strength-index-相对强弱指标">3.134 RSI(), Relative Strength Index (相对强弱指标)</h3>
+
+<blockquote>
+  <p>RSI(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3135-sar-parabolic-sar-抛物线转向">3.135 SAR(), Parabolic SAR (抛物线转向)</h3>
+
+<blockquote>
+  <p>SAR(Records[High,Low],Acceleration Factor = 0.02,AF Maximum = 0.2) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3136-sarext-parabolic-sar-extended-增强型抛物线转向">3.136 SAREXT(),  Parabolic SAR - Extended (增强型抛物线转向)</h3>
+
+<blockquote>
+  <p>SAREXT(Records[High,Low],Start Value = 0,Offset on Reverse = 0,AF Init Long = 0.02,AF Long = 0.02,AF Max Long = 0.2,AF Init Short = 0.02,AF Short = 0.02,AF Max Short = 0.2) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3137-sin-vector-trigonometric-sin-正弦值">3.137 SIN(), Vector Trigonometric Sin (正弦值)</h3>
+
+<blockquote>
+  <p>SIN(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3138-sinh-vector-trigonometric-sinh-双曲正弦函数">3.138 SINH(),    Vector Trigonometric Sinh (双曲正弦函数)</h3>
+
+<blockquote>
+  <p>SINH(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3139-sma-simple-moving-average-简单移动平均">3.139 SMA(), Simple Moving Average (简单移动平均)</h3>
+
+<blockquote>
+  <p>SMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3140-sqrt-vector-square-root-平方根">3.140 SQRT(),    Vector Square Root (平方根)</h3>
+
+<blockquote>
+  <p>SQRT(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3141-stddev-standard-deviation-标准偏差">3.141 STDDEV(),  Standard Deviation (标准偏差)</h3>
+
+<blockquote>
+  <p>STDDEV(Records[Close],Time Period = 5,Deviations = 1) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3142-stoch-stochastic-stoch指标">3.142 STOCH(),   Stochastic (STOCH指标)</h3>
+
+<blockquote>
+  <p>STOCH(Records[High,Low,Close],Fast-K Period = 5,Slow-K Period = 3,Slow-K MA = 0,Slow-D Period = 3,Slow-D MA = 0) = [Array(outSlowK),Array(outSlowD)]</p>
+</blockquote>
+
+
+
+<h3 id="3143-stochf-stochastic-fast-快速stoch指标">3.143 STOCHF(),  Stochastic Fast (快速STOCH指标)</h3>
+
+<blockquote>
+  <p>STOCHF(Records[High,Low,Close],Fast-K Period = 5,Fast-D Period = 3,Fast-D MA = 0) = [Array(outFastK),Array(outFastD)]</p>
+</blockquote>
+
+
+
+<h3 id="3144-stochrsi-stochastic-relative-strength-index-随机强弱指数">3.144 STOCHRSI(),    Stochastic Relative Strength Index (随机强弱指数)</h3>
+
+<blockquote>
+  <p>STOCHRSI(Records[Close],Time Period = 14,Fast-K Period = 5,Fast-D Period = 3,Fast-D MA = 0) = [Array(outFastK),Array(outFastD)]</p>
+</blockquote>
+
+
+
+<h3 id="3145-sum-summation-求和">3.145 SUM(), Summation (求和)</h3>
+
+<blockquote>
+  <p>SUM(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3146-t3-triple-exponential-moving-average-t3-三指数移动平均">3.146 T3(), Triple Exponential Moving Average (T3) (三指数移动平均)</h3>
+
+<blockquote>
+  <p>T3(Records[Close],Time Period = 5,Volume Factor = 0.7) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3147-tanvector-trigonometric-tan-正切">3.147 TAN(),Vector Trigonometric Tan (正切)</h3>
+
+<blockquote>
+  <p>TAN(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3148-tanh-vector-trigonometric-tanh-双曲正切函数">3.148 TANH(),    Vector Trigonometric Tanh (双曲正切函数)</h3>
+
+<blockquote>
+  <p>TANH(Records[Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3149-tema-triple-exponential-moving-average-三指数移动平均">3.149 TEMA(),    Triple Exponential Moving Average (三指数移动平均)</h3>
+
+<blockquote>
+  <p>TEMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3150-trange-true-range-真实范围">3.150 TRANGE(),  True Range (真实范围)</h3>
+
+<blockquote>
+  <p>TRANGE(Records[High,Low,Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3151-trima-triangular-moving-average-三指数移动平均">3.151 TRIMA(),   Triangular Moving Average (三指数移动平均)</h3>
+
+<blockquote>
+  <p>TRIMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3152-trix-1-day-rate-of-change-roc-of-a-triple-smooth-ema-三重指数平滑平均线">3.152 TRIX(),    1-day Rate-Of-Change (ROC) of a Triple Smooth EMA (三重指数平滑平均线)</h3>
+
+<blockquote>
+  <p>TRIX(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3153-tsf-time-series-forecast-时间序列预测">3.153 TSF(), Time Series Forecast (时间序列预测)</h3>
+
+<blockquote>
+  <p>TSF(Records[Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3154-typprice-typical-price-典型价格">3.154 TYPPRICE(),    Typical Price (典型价格)</h3>
+
+<blockquote>
+  <p>TYPPRICE(Records[High,Low,Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3155-ultosc-ultimate-oscillator-极限振子">3.155 ULTOSC(),  Ultimate Oscillator (极限振子)</h3>
+
+<blockquote>
+  <p>ULTOSC(Records[High,Low,Close],First Period = 7,Second Period = 14,Third Period = 28) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3156-var-variance-变量定义">3.156 VAR(), Variance (变量定义)</h3>
+
+<blockquote>
+  <p>VAR(Records[Close],Time Period = 5,Deviations = 1) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3157-wclprice-weighted-close-price-加权收盘价">3.157 WCLPRICE(),    Weighted Close Price (加权收盘价)</h3>
+
+<blockquote>
+  <p>WCLPRICE(Records[High,Low,Close]) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3158-willr-williams-r-威廉指标">3.158 WILLR(),   Williams’ %R (威廉指标)</h3>
+
+<blockquote>
+  <p>WILLR(Records[High,Low,Close],Time Period = 14) = Array(outReal)</p>
+</blockquote>
+
+
+
+<h3 id="3159-wma-weighted-moving-average-加权移动平均">3.159 WMA()  Weighted Moving Average (加权移动平均)</h3>
+
+<blockquote>
+  <p>WMA(Records[Close],Time Period = 30) = Array(outReal)</p>
+</blockquote></div></body>
+</html>
